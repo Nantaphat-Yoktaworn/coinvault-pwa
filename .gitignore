@@ -1,0 +1,10 @@
+# Cloudflare local secrets — never commit
+.dev.vars
+.wrangler/
+
+# Local editor / agent config
+.claude/
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
