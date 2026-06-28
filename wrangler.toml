@@ -1,0 +1,8 @@
+# Cloudflare Pages config — declares the KV binding so we don't rely on the dashboard UI.
+# Secrets (APP_PASSWORD, SESSION_SECRET) are NOT here — set those in the dashboard.
+name = "coinvault-pwa"
+pages_build_output_dir = "dist"
+
+[[kv_namespaces]]
+binding = "DATA"
+id = "0e180517ec854fe3b06a0fcfd66465a9"
