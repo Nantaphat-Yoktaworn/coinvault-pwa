@@ -4,7 +4,7 @@ import { uid, el, esc, toast } from './util.js';
 import { openSheet, closeSheet, confirmSheet } from './sheet.js';
 
 const COLORS = ['#6366f1','#22c55e','#f43f5e','#f59e0b','#06b6d4','#a855f7','#ec4899','#14b8a6','#84cc16','#fb923c'];
-const ICONS = ['🍔','🚗','🛒','🏠','💊','🎮','✈️','📱','🎓','💡','☕️','🎁','💰','💵','💼','📈','🐶','👕','⛽️','🎬'];
+const ICONS = ['🍔','🚗','🛒','🏠','💊','🎮','✈️','📱','🎓','💡','☕️','🎁','💰','💵','💼','📈','🐶','👕','⛽️','🎬','💧','🚬','🍺'];
 
 const DEFAULTS = [
   { name: 'Food',          type: 'expense', icon: '🍔', color: '#f59e0b' },
@@ -13,6 +13,9 @@ const DEFAULTS = [
   { name: 'Bills',         type: 'expense', icon: '🏠', color: '#6366f1' },
   { name: 'Health',        type: 'expense', icon: '💊', color: '#f43f5e' },
   { name: 'Entertainment', type: 'expense', icon: '🎮', color: '#ec4899' },
+  { name: 'Water',         type: 'expense', icon: '💧', color: '#06b6d4' },
+  { name: 'Cigarette',     type: 'expense', icon: '🚬', color: '#fb923c' },
+  { name: 'Alcohol',       type: 'expense', icon: '🍺', color: '#a855f7' },
   { name: 'Other',         type: 'expense', icon: '💡', color: '#84cc16' },
   { name: 'Salary',        type: 'income',  icon: '💼', color: '#22c55e' },
   { name: 'Side income',   type: 'income',  icon: '📈', color: '#14b8a6' },
@@ -27,6 +30,22 @@ export async function seedDefaults() {
     for (const c of DEFAULTS) await put('categories', { id: uid(), ...c, order: Date.now() });
   }
   localStorage.setItem('lt.seeded', '1');
+}
+
+// One-time top-up of categories added after a user's first install. Runs once
+// (guarded by a flag) and only adds names that aren't already present, so it
+// won't resurrect ones the user has deleted on later launches.
+const EXTRA = [
+  { name: 'Water',     type: 'expense', icon: '💧', color: '#06b6d4' },
+  { name: 'Cigarette', type: 'expense', icon: '🚬', color: '#fb923c' },
+  { name: 'Alcohol',   type: 'expense', icon: '🍺', color: '#a855f7' },
+];
+export async function topUpCategories() {
+  if (localStorage.getItem('lt.cats.v2')) return;
+  const existing = await getAll('categories');
+  const has = (c) => existing.some((e) => e.type === c.type && e.name === c.name);
+  for (const c of EXTRA) if (!has(c)) await put('categories', { id: uid(), ...c, order: Date.now() });
+  localStorage.setItem('lt.cats.v2', '1');
 }
 
 export async function listCategories(type) {

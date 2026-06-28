@@ -3,6 +3,7 @@ import { getAll, put, remove, get } from '../db.js';
 import { uid, el, esc, money, todayKey, fmtDate, periodRange, shiftAnchor, inRange, toast } from '../util.js';
 import { openSheet, closeSheet, confirmSheet } from '../sheet.js';
 import { listCategories, categoryMap, openManageCategories } from '../categories.js';
+import { getBudgets, budgetRows, budgetBarHtml } from '../budgets.js';
 
 let anchor = new Date();
 
@@ -15,6 +16,15 @@ export async function render(root) {
   const income = rows.filter((t) => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const expense = rows.filter((t) => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
   const net = income - expense;
+
+  // Budget progress for the visible month.
+  const spentByCat = {};
+  for (const t of rows) if (t.type === 'expense') spentByCat[t.categoryId] = (spentByCat[t.categoryId] || 0) + t.amount;
+  const budgets = await getBudgets();
+  const bRows = budgetRows(budgets, spentByCat, expense, cats);
+  const budgetCard = bRows.length
+    ? `<div class="card"><div class="section-title" style="margin-top:0">Budgets</div>${bRows.map(budgetBarHtml).join('')}</div>`
+    : '';
 
   root.innerHTML = `
     <div class="period-nav">
@@ -32,6 +42,7 @@ export async function render(root) {
         <div class="box"><div class="label">Expense</div><div class="num amt-expense">${money(expense)}</div></div>
       </div>
     </div>
+    ${budgetCard}
     <div id="tx-list"></div>
   `;
 

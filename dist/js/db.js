@@ -1,12 +1,13 @@
 // IndexedDB wrapper — all data lives on this device.
 const DB_NAME = 'life-tracker';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const STORES = {
   transactions: { keyPath: 'id', indexes: [['date', 'date']] },
   categories:   { keyPath: 'id', indexes: [['type', 'type']] },
   tasks:        { keyPath: 'id', indexes: [['dueDate', 'dueDate']] },
   activities:   { keyPath: 'id', indexes: [['day', 'day']] },
+  budgets:      { keyPath: 'categoryId' },
 };
 
 let _db;

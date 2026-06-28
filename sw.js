@@ -1,8 +1,7 @@
 // Service worker: cache the app shell so it works offline once installed.
-const CACHE = 'coinvault-v2';
+const CACHE = 'coinvault-v3';
 const ASSETS = [
   './',
-  './index.html',
   './css/styles.css',
   './manifest.webmanifest',
   './js/app.js',
@@ -12,6 +11,7 @@ const ASSETS = [
   './js/util.js',
   './js/sheet.js',
   './js/categories.js',
+  './js/budgets.js',
   './js/settings.js',
   './js/views/money.js',
   './js/views/stats.js',
@@ -32,21 +32,32 @@ self.addEventListener('activate', (e) => {
   );
 });
 
+// iOS standalone PWAs reject any navigation response with `redirected: true`
+// ("Response served by service worker has redirections"). Rebuild a clean response.
+async function clean(res) {
+  if (!res || !res.redirected) return res;
+  const body = await res.arrayBuffer();
+  return new Response(body, { status: res.status, statusText: res.statusText, headers: res.headers });
+}
+
 self.addEventListener('fetch', (e) => {
   const { request } = e;
   if (request.method !== 'GET') return;
   // Never cache API calls — they must always hit the network (auth + live data).
   if (new URL(request.url).pathname.startsWith('/api/')) return;
-  e.respondWith(
-    caches.match(request).then((cached) => {
-      const network = fetch(request).then((res) => {
-        if (res && res.status === 200 && new URL(request.url).origin === location.origin) {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(request, copy));
-        }
-        return res;
-      }).catch(() => cached);
-      return cached || network;
-    })
-  );
+  e.respondWith((async () => {
+    const cached = await caches.match(request);
+    if (cached) return clean(cached);
+    try {
+      const res = await fetch(request);
+      // Only cache clean, non-redirected, same-origin 200s.
+      if (res && res.status === 200 && !res.redirected && new URL(request.url).origin === location.origin) {
+        const copy = res.clone();
+        caches.open(CACHE).then((c) => c.put(request, copy));
+      }
+      return clean(res);
+    } catch {
+      return cached || Response.error();
+    }
+  })());
 });

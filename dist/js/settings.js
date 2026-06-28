@@ -3,6 +3,7 @@ import { exportAll, importAll } from './db.js';
 import { el, esc, toast, getCurrency, setCurrency, todayKey } from './util.js';
 import { openSheet, closeSheet, confirmSheet } from './sheet.js';
 import { openManageCategories } from './categories.js';
+import { openManageBudgets } from './budgets.js';
 import { isLoggedIn, login, logout, syncNow, pull } from './cloud.js';
 
 
@@ -26,7 +27,8 @@ export function openSettings(onChange) {
     ${cloud}
 
     <div class="section-title">Setup</div>
-    <button class="btn secondary" id="s-cats">Manage categories</button>
+    <button class="btn secondary" id="s-budgets">Manage budgets</button>
+    <button class="btn secondary" id="s-cats" style="margin-top:10px">Manage categories</button>
     <label>Currency symbol</label>
     <input id="s-cur" maxlength="4" value="${esc(getCurrency())}" />
 
@@ -97,6 +99,7 @@ export function openSettings(onChange) {
     body.querySelector('#s-pw').addEventListener('keydown', (e) => { if (e.key === 'Enter') doLogin(); });
   }
 
+  body.querySelector('#s-budgets').onclick = () => openManageBudgets(onChange);
   body.querySelector('#s-cats').onclick = () => openManageCategories(onChange);
 
   body.querySelector('#s-cur').onchange = (e) => {

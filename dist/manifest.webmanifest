@@ -2,7 +2,7 @@
   "name": "CoinVault",
   "short_name": "CoinVault",
   "description": "Private income & expense tracker — your money data stays yours.",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

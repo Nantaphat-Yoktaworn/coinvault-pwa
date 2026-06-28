@@ -1,5 +1,5 @@
 // Main controller: tab routing, FAB, settings, service-worker registration.
-import { seedDefaults } from './categories.js';
+import { seedDefaults, topUpCategories } from './categories.js';
 import { openSettings } from './settings.js';
 import { setMutateHook } from './db.js';
 import { markDirty, isLoggedIn, pull } from './cloud.js';
@@ -57,6 +57,10 @@ async function init() {
   } else {
     await pull();        // returning user — sync latest from cloud
   }
+
+  // After syncing, add any categories introduced in an update (runs once). Doing this
+  // post-pull means the additions land on top of cloud data and then sync back up.
+  await topUpCategories();
   await show('money');
 
   if ('serviceWorker' in navigator) {
