@@ -3,6 +3,7 @@ import { seedDefaults } from './categories.js';
 import { openSettings } from './settings.js';
 import { setMutateHook } from './db.js';
 import { markDirty, isLoggedIn, pull } from './cloud.js';
+import { showLogin } from './login.js';
 import * as money from './views/money.js';
 import * as stats from './views/stats.js';
 
@@ -49,14 +50,14 @@ async function init() {
   setMutateHook(markDirty);
   await seedDefaults();
 
-  // If logged in, pull cloud data first so a fresh device shows the latest.
-  if (isLoggedIn()) {
-    const changed = await pull();
-    await show('money');
-    if (changed) await show(active); // re-render with pulled data
+  // Login gate: must log in before using the app. The session is remembered on the
+  // device, so returning users skip this and go straight to their data.
+  if (!isLoggedIn()) {
+    await showLogin();   // resolves after a successful login (which also pulls)
   } else {
-    await show('money');
+    await pull();        // returning user — sync latest from cloud
   }
+  await show('money');
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('./sw.js').catch(() => {});

@@ -1,5 +1,5 @@
 // Service worker: cache the app shell so it works offline once installed.
-const CACHE = 'coinvault-v1';
+const CACHE = 'coinvault-v2';
 const ASSETS = [
   './',
   './index.html',
@@ -7,6 +7,7 @@ const ASSETS = [
   './manifest.webmanifest',
   './js/app.js',
   './js/cloud.js',
+  './js/login.js',
   './js/db.js',
   './js/util.js',
   './js/sheet.js',

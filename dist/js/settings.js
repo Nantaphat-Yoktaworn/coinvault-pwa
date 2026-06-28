@@ -76,9 +76,10 @@ export function openSettings(onChange) {
       toast('Synced');
     };
     body.querySelector('#s-logout').onclick = async () => {
+      const ok = await confirmSheet('Log out?', 'You will need your password to log back in on this device.', { okText: 'Log out', danger: true });
+      if (!ok) return;
       await logout();
-      toast('Logged out');
-      openSettings(onChange); // re-render the sheet in logged-out state
+      location.reload(); // back to the login screen
     };
   } else {
     const doLogin = async () => {

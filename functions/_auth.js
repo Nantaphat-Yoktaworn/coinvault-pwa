@@ -19,7 +19,7 @@ function b64url(buf) {
 }
 
 // Token = base64url(exp) + "." + base64url(hmac(exp)). exp is epoch ms.
-async function sign(secret, ttlMs = 30 * 24 * 60 * 60 * 1000) {
+async function sign(secret, ttlMs = 365 * 24 * 60 * 60 * 1000) {
   const exp = String(Date.now() + ttlMs);
   const key = await hmacKey(secret);
   const sig = await crypto.subtle.sign('HMAC', key, enc.encode(exp));

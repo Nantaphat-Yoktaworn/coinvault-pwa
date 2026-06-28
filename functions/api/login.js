@@ -13,7 +13,7 @@ export async function onRequestPost({ request, env }) {
     status: 200,
     headers: {
       'Content-Type': 'application/json',
-      'Set-Cookie': `session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=2592000`,
+      'Set-Cookie': `session=${token}; HttpOnly; Secure; SameSite=Lax; Path=/; Max-Age=31536000`,
     },
   });
 }
