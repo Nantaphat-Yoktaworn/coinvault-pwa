@@ -19,29 +19,37 @@ export function openSheet(title, content) {
   return overlay;
 }
 
-// Drag the sheet down to dismiss (phones). Only engages when the sheet is scrolled
-// to the top, so it never fights with scrolling long content.
+// Drag the sheet down to dismiss (phones). Direction is locked after a few pixels:
+// a downward start (while scrolled to top) becomes a drag; an upward start stays a
+// native scroll. This avoids losing the gesture on the ambiguous first move.
 function enableDragClose(sheet) {
-  let startY = 0, dy = 0, dragging = false;
+  let startY = 0, dy = 0, mode = null; // null = undecided, 'drag', 'scroll'
   sheet.addEventListener('touchstart', (e) => {
-    if (sheet.scrollTop > 0) { dragging = false; return; }
-    startY = e.touches[0].clientY; dy = 0; dragging = true;
-    sheet.style.transition = 'none';
+    startY = e.touches[0].clientY; dy = 0;
+    mode = sheet.scrollTop > 0 ? 'scroll' : null; // not at top → it's a scroll
+    if (mode === null) sheet.style.transition = 'none';
   }, { passive: true });
   sheet.addEventListener('touchmove', (e) => {
-    if (!dragging) return;
     dy = e.touches[0].clientY - startY;
-    if (dy <= 0) { sheet.style.transform = ''; return; }  // upward → allow normal scroll
+    if (mode === null) {
+      if (dy > 6) mode = 'drag';
+      else if (dy < -6) mode = 'scroll';
+      else return;
+    }
+    if (mode !== 'drag') return; // let native scrolling happen
     e.preventDefault();
-    sheet.style.transform = `translateY(${dy}px)`;
+    sheet.style.transform = `translateY(${Math.max(dy, 0)}px)`;
   }, { passive: false });
-  sheet.addEventListener('touchend', () => {
-    if (!dragging) return;
-    dragging = false;
+  const end = () => {
     sheet.style.transition = '';
-    if (dy > 110) closeSheet();
-    else sheet.style.transform = '';
-  });
+    if (mode === 'drag') {
+      if (dy > 110) closeSheet();
+      else sheet.style.transform = '';
+    }
+    mode = null;
+  };
+  sheet.addEventListener('touchend', end);
+  sheet.addEventListener('touchcancel', end);
 }
 
 export function closeSheet() {
