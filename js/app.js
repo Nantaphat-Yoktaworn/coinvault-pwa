@@ -2,7 +2,7 @@
 import { seedDefaults, topUpCategories } from './categories.js';
 import { openSettings } from './settings.js';
 import { setMutateHook } from './db.js';
-import { markDirty, isLoggedIn, pull } from './cloud.js';
+import { markDirty, isLoggedIn, pull, onStatus } from './cloud.js';
 import { showLogin } from './login.js';
 import * as money from './views/money.js';
 import * as stats from './views/stats.js';
@@ -45,6 +45,14 @@ tabBar.addEventListener('click', (e) => {
 });
 
 document.getElementById('settings-btn').onclick = () => openSettings(() => show(active));
+
+// Live cloud-sync status in the header.
+const SYNC_LABELS = { synced: 'Synced', syncing: 'Syncing…', offline: 'Offline', error: 'Sync error' };
+const syncEl = document.getElementById('sync-status');
+onStatus((s) => {
+  syncEl.dataset.status = s;
+  syncEl.querySelector('.sync-text').textContent = SYNC_LABELS[s] || '';
+});
 
 async function init() {
   setMutateHook(markDirty);

@@ -94,6 +94,18 @@ body.locked .fab { display: none; }
 }
 .icon-btn:active { background: var(--surface-2); }
 
+/* Live cloud-sync status */
+.header-right { display: flex; align-items: center; gap: 8px; }
+.sync-status { display: inline-flex; align-items: center; gap: 5px; }
+.sync-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); flex: none; }
+.sync-text { font-size: 0.7rem; color: var(--muted); white-space: nowrap; }
+.sync-status[data-status=""] { display: none; }
+.sync-status[data-status="synced"]  .sync-dot { background: var(--income); }
+.sync-status[data-status="syncing"] .sync-dot { background: var(--warn); animation: sync-pulse 1s ease-in-out infinite; }
+.sync-status[data-status="offline"] .sync-dot { background: var(--muted); }
+.sync-status[data-status="error"]   .sync-dot { background: var(--expense); }
+@keyframes sync-pulse { 50% { opacity: 0.3; } }
+
 /* Main scroll area */
 main {
   padding: calc(var(--header-h) + var(--safe-top) + 12px) 16px
@@ -293,6 +305,8 @@ input[type="date"], input[type="time"], input[type="datetime-local"] {
   max-height: 92vh; overflow-y: auto;
   backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
   animation: slideup 0.24s cubic-bezier(.2,.8,.2,1);
+  transition: transform 0.25s cubic-bezier(.2,.8,.2,1);
+  touch-action: pan-y;
 }
 .sheet-grip { width: 40px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2); margin: 8px auto 6px; }
 .sheet h2 { margin: 4px 0 8px; font-size: 1.25rem; }

@@ -13,9 +13,35 @@ export function openSheet(title, content) {
   overlay.querySelector('h2').textContent = title;
   overlay.querySelector('.sheet-body').appendChild(content);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) closeSheet(); });
+  enableDragClose(overlay.querySelector('.sheet'));
   document.getElementById('sheet-root').appendChild(overlay);
   current = overlay;
   return overlay;
+}
+
+// Drag the sheet down to dismiss (phones). Only engages when the sheet is scrolled
+// to the top, so it never fights with scrolling long content.
+function enableDragClose(sheet) {
+  let startY = 0, dy = 0, dragging = false;
+  sheet.addEventListener('touchstart', (e) => {
+    if (sheet.scrollTop > 0) { dragging = false; return; }
+    startY = e.touches[0].clientY; dy = 0; dragging = true;
+    sheet.style.transition = 'none';
+  }, { passive: true });
+  sheet.addEventListener('touchmove', (e) => {
+    if (!dragging) return;
+    dy = e.touches[0].clientY - startY;
+    if (dy <= 0) { sheet.style.transform = ''; return; }  // upward → allow normal scroll
+    e.preventDefault();
+    sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: false });
+  sheet.addEventListener('touchend', () => {
+    if (!dragging) return;
+    dragging = false;
+    sheet.style.transition = '';
+    if (dy > 110) closeSheet();
+    else sheet.style.transform = '';
+  });
 }
 
 export function closeSheet() {

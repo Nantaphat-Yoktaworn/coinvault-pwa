@@ -23,7 +23,12 @@
 
   <header class="app-header">
     <h1 id="view-title">Money</h1>
-    <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙︎</button>
+    <div class="header-right">
+      <span id="sync-status" class="sync-status" data-status="" aria-live="polite">
+        <span class="sync-dot"></span><span class="sync-text"></span>
+      </span>
+      <button id="settings-btn" class="icon-btn" aria-label="Settings">⚙︎</button>
+    </div>
   </header>
 
   <main id="view"></main>

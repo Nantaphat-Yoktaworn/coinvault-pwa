@@ -1,5 +1,5 @@
 // Service worker: cache the app shell so it works offline once installed.
-const CACHE = 'coinvault-v3';
+const CACHE = 'coinvault-v4';
 const ASSETS = [
   './',
   './css/styles.css',
